@@ -1,16 +1,15 @@
-Package: paver
+Package: ggpaver
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A `ggplot2` Extension for Pavement Plots
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "David", "Williams",
+      email = "david.williams.g.drive@gmail.com",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: Ports pavement plots into R.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

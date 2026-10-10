@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(paver)
+library(ggpaver)
 
-test_check("paver")
+test_check("ggpaver")

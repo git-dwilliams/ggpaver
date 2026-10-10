@@ -54,7 +54,7 @@ StatPavement <- ggplot2::ggproto(
       (ggplot2::resolution(data$x %||% 0, discrete = TRUE) * 0.9)
 
     if (
-      !is_mapped_discrete(data$x) &&
+      !ggplot2:::is_mapped_discrete(data$x) &&
         is.double(data$x) &&
         !ggplot2::has_groups(data) &&
         any(data$x != data$x[1L])
