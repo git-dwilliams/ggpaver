@@ -2,20 +2,22 @@
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
-# ggpaver
+<img src="logo/ggpaver-logo.svg" align="right" width="120" alt="ggpaver logo" />
+
+# ggpaver (Still in Development)
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of ggpaver is to facilitate the use of pavement plots in R via
+The goal of `ggpaver` is to facilitate the use of pavement plots in R as
 a `ggplot2` extension. Pavement plots present univariate continuous data
 as tiles ranging between the minimal and maximal values, with each tile
 representing an equal share of the data.
 
 ## Installation
 
-You can install the development version of ggpaver from
+You can install the development version of `ggpaver` from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -25,17 +27,12 @@ pak::pak("git-dwilliams/ggpaver")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
 ``` r
 library(ggplot2)
 library(ggpaver)
 
-ggplot(
-  diamonds,
-  aes(x = price, y = cut)
-) +
-  geom_pavement(bins = 12) +
+ggplot(diamonds, aes(x = price, y = cut)) +
+  geom_pavement(bins = 16) +
   labs(
     title = "A Pavement Plot of Diamond Price (USD) by Cut",
     subtitle = "Each Tile Represents an Equal Share of its Group's Data"

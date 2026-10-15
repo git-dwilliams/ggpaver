@@ -1,4 +1,4 @@
-# TODO: Finish documentation for this file.
+# TODO: Finish documentation
 #' @rdname Stat
 #' @format NULL
 #' @usage NULL
@@ -56,7 +56,7 @@ StatPavement <- ggplot2::ggproto(
     if (
       !ggplot2:::is_mapped_discrete(data$x) &&
         is.double(data$x) &&
-        !ggplot2::has_groups(data) &&
+        !ggplot2:::has_groups(data) &&
         any(data$x != data$x[1L])
     ) {
       cli::cli_warn(c(
@@ -64,7 +64,7 @@ StatPavement <- ggplot2::ggproto(
         "i" = "did you forget {.code aes(group = ...)}?"
       ))
     }
-    params$bins <- params$bins %||% 10
+    params$bins <- params$bins %||% 4
     if (
       !is.numeric(params$bins) || length(params$bins) != 1 || params$bins < 1
     ) {
@@ -83,8 +83,8 @@ StatPavement <- ggplot2::ggproto(
     width = NULL,
     na.rm = FALSE,
     flipped_aes = FALSE,
-    bins = 10,
-    quantile.type = 7
+    bins = 4,
+    quantile.type = 2
   ) {
     data <- ggplot2::flip_data(data, flipped_aes)
     quantiles <- seq(0, 1, length.out = bins + 1)
@@ -108,10 +108,6 @@ StatPavement <- ggplot2::ggproto(
     breaks <- sort(unique(breaks))
     n_tiles <- length(breaks) - 1L
 
-    # TODO: Currently, a user can construct a pavement plot with more tiles than
-    # observations. This could potentially mislead. There should be at least
-    # a warning indicating that the number of quantiles is greater than the
-    # number of observations.
     if (n_tiles < 1L) {
       cli::cli_warn("Not enough distinct values to draw any pavement tiles.")
       return(vctrs::data_frame(.name_repair = "minimal"))
@@ -142,10 +138,12 @@ StatPavement <- ggplot2::ggproto(
     ggplot2::flip_data(df, flipped_aes)
   }
 )
-#' @rdname geom_boxplot
-#' @param quantile.type An integer between 1 and 9 setting the quantile
-#'   algorithm per [`stats::quantile(type)`][stats::quantile]. Defaults to `7`.
-#' @inheritParams shared_layer_parameters
+#' @rdname geom_pavement
+#' @param bins The number of bin (or "tiles") to make the pavement plot with. Necessitates
+#'   the calculation of `bins + 1` quantiles.
+#' @param quantile.type An integer between 1 and 9 setting the quantile algorithm
+#'   per [`stats::quantile(type)`][stats::quantile]. Defaults to `2` rather than
+#'   `7`. The calculated quantiles determine the position and width of the bins.
 #' @export
 stat_pavement <- ggplot2::make_constructor(
   StatPavement,

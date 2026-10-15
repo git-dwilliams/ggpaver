@@ -1,12 +1,28 @@
-# TODO: Finish documentation for this file.
+# TODO: Finish documentation
+#' A pavement plot
+#'
+#' The pavement plot presents a continuous variable's distribution in a manner
+#' similar to that of a boxplot, but with greater flexibilitiy. While
+#' `ggplot2::stat_boxplot` calculates fixed quantiles `c(0, 0.25, 0.5, 0.75, 1)`,
+#' `stat_pavement` calculates quantiles as split by parameter that the user
+#' gives for the `bins` argument.
+#'
+#' @aesthetics GeomPavement
+#'
+#' @export
+#' @examples
+#' ggplot2::ggplot(penguins, ggplot2::aes(body_mass, species)) + geom_pavement()
+#' # Orientation is switchable. Having the continuous variable on the x-axis
+#' # is recommended.
+#' ggplot2::ggplot(penguins, ggplot2::aes(species, body_mass)) + geom_pavement()
 geom_pavement <- function(
   mapping = NULL,
   data = NULL,
   stat = "pavement",
   position = "identity",
   ...,
-  bins = 10,
-  quantile.type = 7,
+  bins = 4,
+  quantile.type = 2,
   na.rm = FALSE,
   orientation = NA,
   show.legend = NA,
@@ -31,10 +47,6 @@ geom_pavement <- function(
 }
 
 
-#' @rdname Geom
-#' @format NULL
-#' @usage NULL
-#' @export
 GeomPavement <- ggplot2::ggproto(
   "GeomPavement",
   ggplot2::Geom,
@@ -45,8 +57,6 @@ GeomPavement <- ggplot2::ggproto(
     params
   },
 
-  # TODO: Refactor `setup_data` method in order to more idiomatic and in line
-  # with that of other Geoms.
   setup_data = function(self, data, params) {
     data$flipped_aes <- params$flipped_aes
     data <- ggplot2::flip_data(data, params$flipped_aes)
@@ -54,8 +64,6 @@ GeomPavement <- ggplot2::ggproto(
 
     units <- unique(data[c("x", "group")])
     units <- units[order(units$x, units$group), ]
-    # how many columns share each nominal x, and this column's rank
-    # among them, left to right
     units$n <- ave(units$group, units$x, FUN = length)
     units$idx <- unlist(lapply(split(seq_len(nrow(units)), units$x), seq_along))
 
@@ -63,10 +71,6 @@ GeomPavement <- ggplot2::ggproto(
     n <- units$n[key]
     idx <- units$idx[key]
 
-    # Shrink each column to its even share of the slot and centre columns
-    # symmetrically either side of the nominal x -- the same arithmetic
-    # position_dodge2() applies, just computed once per column rather
-    # than once per row, so every slab in a column moves together.
     col_width <- data$width / n
     data$x <- data$x + (idx - (n + 1) / 2) * col_width
     data$xmin <- data$x - col_width / 2

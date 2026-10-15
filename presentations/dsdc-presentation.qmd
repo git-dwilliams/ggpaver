@@ -1,0 +1,310 @@
+---
+title: "Pavement Plots in R with ggpaver"
+date: 2026-10-15
+date-format: long
+author: "David Williams"
+format: 
+  revealjs:
+    incremental: true
+    smaller: true
+    embed-resources: true
+    logo: ../logo/ggpaver-logo.svg
+    include-in-header:
+      - text: |
+            <style>
+            .reveal .slide-logo { max-height: 7.5rem !important; }
+            </style>
+---
+
+## Acknowledgements
+
+- Not my idea! I'm just bringing it to R: <https://github.com/ajschumacher/pavement>
+- DSDC Side Project Mentorship
+
+## Why I Wanted to Do This Project
+
+- I like R
+- I like visualizing data
+- I wanted to try developing a package
+
+## My Approach
+
+- `ggplot2` is powered by `Geom` and `Stat` objects created via the `ggproto` function
+- `ggpaver` adds `GeomPavement` and `StatPavement` objects, along with `geom_pavement` and `stat_pavement` functions for use in plotting
+  + The approach is similar to how `ggplot2` implements boxplots
+
+## Just What Is a Pavement Plot Anyway?
+::: {.fragment .fade-right}
+```{r}
+#| label: pavement-example
+library(ggplot2)
+library(ggpaver)
+# Reset theme if necessary:
+set_theme(theme())
+ggplot(diamonds, aes(x = price, y = cut, fill = cut)) +
+  geom_pavement(bins = 16, show.legend = FALSE) +
+  labs(
+    title = "A pavement plot of diamond price (USD) by cut",
+    subtitle = "Each tile represents an equal share of its group's data",
+    caption = "Data are from `ggplot2::diamonds`"
+  )
+```
+:::
+
+## What Does the Code Look Like?
+
+- Enter `ggpaver`:
+
+::: {.fragment .fade-down}
+```{.r code-line-numbers="1-10|2,5"}
+library(ggplot2)
+library(ggpaver)
+
+ggplot(diamonds, aes(x = price, y = cut, fill = cut)) +
+  geom_pavement(bins = 16, show.legend = FALSE) +
+  labs(
+    title = "A Pavement Plot of Diamond Price (USD) by Cut",
+    subtitle = "Each Tile Represents an Equal Share of its Group's Data",
+    caption = "Data are from `ggplot2::diamonds`"
+  )
+```
+:::
+
+# What's Wrong with Other Plots?
+
+## Histograms
+
+- Groups make bins crowded
+- Easy to manipulate
+
+::: {.fragment}
+
+::: {.panel-tabset}
+### Histograms
+```{r}
+#| label: bad-hists
+#| fig-height: 4
+library(patchwork)
+hist_base <- ggplot(diamonds, aes(x = price, fill = cut))
+p1 <- hist_base +
+  geom_histogram(bins = 100) +
+  labs(
+    title = "Price has a right-skewed distribution",
+    subtitle = "This histogram proves it"
+  )
+p2 <- hist_base +
+  # With a simple change to bin number, the data's shape looks different:
+  geom_histogram(bins = 1) +
+  labs(
+    title = "Actually, price has a perfectly uniform distribution",
+    subtitle = "This histogram proves it",
+    caption = "(No it doesn't)"
+  )
+p1 + p2
+```
+
+### Code
+
+```{.r code-line-numbers=2-4,9-11}
+library(patchwork)
+hist_base <- ggplot(diamonds, aes(x = price, fill = cut))
+p1 <- hist_base +
+  geom_histogram(bins = 100) +
+  labs(
+    title = "Price has a right-skewed distribution",
+    subtitle = "This histogram proves it"
+  )
+p2 <- hist_base +
+  # With a simple change to bin number, the data's shape looks different:
+  geom_histogram(bins = 1) +
+  labs(
+    title = "Actually, price has a perfectly uniform distribution",
+    subtitle = "This histogram proves it",
+    caption = "(No it doesn't)"
+  )
+p1 + p2
+```
+:::
+:::
+
+## Kernal Density Estimates (KDEs)
+
+```{r}
+#| label: density
+ggplot(diamonds, aes(x = price, color = cut, fill = cut)) +
+  geom_density(alpha = 0.4)
+```
+- Not necessarily intuitive to interpret
+- Groups can be messy 
+
+## Boxplots
+
+```{r}
+#| label: box
+ggplot(diamonds, aes(x = price, y = cut, fill = cut)) +
+  geom_boxplot(
+    quantile.type = 2,
+    width = 0.5,
+    alpha = 0.75,
+    show.legend = FALSE
+  )
+```
+- Better than the aforementioned alternatives, but ...
+- Depending on the viewer's background, it may not be obvious what the box, whiskers, and outliers each represent
+- Not ideal for multimodal data—there's a reason that they're called *boxplots* instead of ***boxes****-plots*
+
+## Example: Bimodal Data
+
+```{r}
+#| label: change-theme
+set_theme(
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+)
+```
+::: {.panel-tabset}
+
+### Boxplot
+```{r}
+#| label: bimodal-boxplot
+set.seed(20261015)
+n <- 10000
+x1 <- rnorm(n, mean = 250, sd = 50)
+x2 <- rnorm(n, mean = 750, sd = 100)
+bimodal <- data.frame(x = c(x1, x2))
+# Saving title string since I'll be using it again:
+bimodal_title <- "The presented variable's distribution is bimodal"
+
+ggplot(bimodal, aes(x = x)) +
+  geom_boxplot() +
+  labs(
+    title = bimodal_title,
+    subtitle = "You wouldn't know it from looking at this plot"
+  )
+```
+
+### Code
+```{r}
+#| label: bimodal-boxplot-display
+#| ref.label: bimodal-boxplot
+#| echo: true
+#| eval: false
+```
+
+:::
+
+## Pavement to the Rescue!
+::: {.panel-tabset}
+
+### Pavement Plot
+```{r}
+#| label: pavement-boxplot
+pavement <- ggplot(bimodal, aes(x = x)) +
+  geom_pavement(bins = 16) +
+  labs(x = NULL)
+box <- ggplot(bimodal, aes(x = x)) + geom_boxplot()
+
+patchwork1 <- pavement / box
+patchwork1 +
+  plot_annotation(
+    title = bimodal_title,
+    subtitle = "You WOULD know it from looking at this plot, thanks to ggpaver",
+    caption = "Boxplot included for comparison"
+  )
+```
+
+### Code 
+```{r}
+#| label: pavement-boxplot-display
+#| ref.label: pavement-boxplot
+#| echo: true
+#| eval: false
+```
+
+:::
+
+## What about Violin Plots?
+::: {.fragment}
+```{r}
+#| label: violin-quantile
+n_bins <- 16
+# From `stat_pavement()`:
+quantiles <- seq(0, 1, length.out = n_bins + 1)
+ggplot(bimodal, aes(x = x, y = 1)) +
+  geom_violin(
+    quantiles = quantiles,
+    quantile.linetype = 1
+  ) +
+  labs(
+    title = bimodal_title,
+    subtitle = "You can tell from this violin plot",
+    caption = "It even has quantile lines added",
+    y = NULL
+  )
+```
+:::
+
+## Well...
+
+- They trade the boxplot's simplicity for flexibility—a good trade, but still a trade
+- Pavement plots are *both simple **and** flexible*
+
+::: {.fragment}
+```{r}
+#| label: plots-compared
+violin <- ggplot(bimodal, aes(x = x, y = 1)) +
+  geom_violin(
+    quantiles = quantiles,
+    quantile.linetype = 1
+  ) +
+  labs(x = NULL, y = NULL)
+box <- ggplot(bimodal, aes(x = x)) + geom_boxplot() + labs(x = NULL)
+pavement <- ggplot(bimodal, aes(x = x)) +
+  geom_pavement(bins = 16)
+# Patch together:
+patchwork2 <- violin / box / pavement
+# Add annotation for entire patchwork rather than constituent plots:
+patchwork2 +
+  plot_annotation(
+    title = "One Distribution, Three Visualizations",
+    subtitle = "Take your pick",
+    caption = "(Pick pavement)"
+  )
+```
+:::
+
+## What's Next?
+
+- Publish to CRAN
+- Explore other visualization libraries
+- Extend functionality
+
+::: {.fragment}
+```{r}
+#| label: ggMarginal-example
+library(ggplot2)
+library(ggExtra)
+
+scatter <- ggplot(
+  penguins,
+  aes(x = bill_dep, y = flipper_len, color = species)
+) +
+  geom_point() +
+  labs(
+    title = "Imagine this (from `ggExtra::ggMarginal`) but with pavement instead of boxplots",
+    caption = "Data are from `datasets::penguins`"
+  )
+# `ggMarginal` adds univariate plots to the margins of a main multivariate one.
+ggMarginal(scatter, type = "boxplot", groupColour = TRUE, groupFill = TRUE)
+```
+:::
+
+## Try it yourself
+::: {.nonincremental}
+- Install the dev version in R: `pak::pak("git-dwilliams/ggpaver")`
+- Check the repo out: <https://github.com/git-dwilliams/ggpaver>
+:::
