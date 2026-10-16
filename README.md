@@ -44,7 +44,7 @@ ggplot(diamonds, aes(x = price, y = cut)) +
 
 ## Original Implementation in Python
 
-Check out the Aaron Schumacher’s original (and much more mature)
+Check out Aaron Schumacher’s original (and much more mature)
 [implementation in Python](https://github.com/ajschumacher/pavement/):
 
 ``` sh
