@@ -9,7 +9,9 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Ports pavement plots into R from Python's `pavement` package.
+Description: Ports pavement plots into R from Python's `pavement` package. See
+    https://github.com/ajschumacher/pavement/ for more on the original Python
+    implementation.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
