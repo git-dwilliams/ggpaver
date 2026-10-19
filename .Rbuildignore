@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.qmd$
+^vignettes/\.quarto$
+^vignettes/*_files$
