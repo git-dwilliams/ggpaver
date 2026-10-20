@@ -27,3 +27,6 @@ Suggests:
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.1
 VignetteBuilder: knitr, quarto
+Depends: 
+    R (>= 3.5)
+LazyData: true
