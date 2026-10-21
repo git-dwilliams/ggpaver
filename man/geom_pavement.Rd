@@ -44,8 +44,8 @@ per [`stats::quantile(type)`][stats::quantile]. Defaults to `2` rather than
 \description{
 The pavement plot presents a continuous variable's distribution in a manner
 similar to that of a boxplot, but with greater flexibilitiy. While
-`ggplot2::stat_boxplot` calculates fixed quantiles `c(0, 0.25, 0.5, 0.75, 1)`,
-`stat_pavement` calculates quantiles as split by parameter that the user
+`ggplot2`'s `stat_boxplot` calculates fixed quantiles `c(0, 0.25, 0.5, 0.75, 1)`,
+`stat_pavement` calculates quantiles as split by the parameter that the user
 gives for the `bins` argument.
 }
 \examples{

@@ -1,6 +1,6 @@
 #' One variable across five different distributions bound into a single dataset
 #'
-#' A synthetic dataset comrising various distributions for illustration
+#' A synthetic dataset comprising various distributions for illustration
 #'
 #' @format A `data.frame` with 500000 rows and 2 variables:
 #' \describe{
