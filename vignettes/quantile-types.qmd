@@ -1,0 +1,16 @@
+---
+title: "quantile-types"
+vignette: >
+  %\VignetteIndexEntry{quantile-types}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+library(ggpaver)
+```
