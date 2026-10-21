@@ -1,4 +1,4 @@
-set.seed(20261019)
+set.seed(20261020)
 
 # Ensure that distributions have the same range for comparisons:
 rescale <- function(x, low = 0, high = 1000) {
@@ -8,6 +8,8 @@ rescale <- function(x, low = 0, high = 1000) {
   rescaled <- shifted_min / original_range * new_range + low
   return(rescaled)
 }
+
+n <- 100000
 
 normal <- data.frame(
   x = rescale(rnorm(n, mean = 0, sd = 1)),
