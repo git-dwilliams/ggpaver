@@ -9,7 +9,7 @@ rescale <- function(x, low = 0, high = 1000) {
   return(rescaled)
 }
 
-n <- 100000
+n <- 10000
 
 normal <- data.frame(
   x = rescale(rnorm(n, mean = 0, sd = 1)),
