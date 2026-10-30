@@ -103,6 +103,7 @@ The above plot has some issues:
 - Additionally, if one distribution had substantially more observations than the others, the other distributions would become harder to view:
 
 ```{r}
+#| label: normal-inflated
 x_normal <- with(distributions, x[distribution == "Normal"])
 normal_10x <- data.frame(
   x = rep(x_normal, times = 10),
@@ -177,6 +178,7 @@ Of the plotting functions from `ggplot2` discussed in this article, `geom_boxplo
     ```
 
 ```{r}
+#| label: bimodal-patchwork
 library(patchwork)
 bimodal <- with(
   distributions,
