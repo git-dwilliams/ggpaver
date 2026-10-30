@@ -1,5 +1,5 @@
 ---
-title: "pavement-plots"
+title: "Pavement Plots"
 vignette: >
   %\VignetteIndexEntry{pavement-plots}
   %\VignetteEngine{quarto::html}
@@ -8,9 +8,207 @@ knitr:
   opts_chunk:
     collapse: true
     comment: '#>'
+format:
+  html:
+    code-fold: true
 ---
+
+## Introduction
+
+This article introduces pavement plots and compares them with common visualization techniques available via `ggplot2`. All we need to make pavement plots in R are the packages `ggplot2` and `ggpaver`:
 
 ```{r}
 #| label: setup
+#| code-fold: false
+library(ggplot2)
 library(ggpaver)
 ```
+
+## Paving the Way with an Example
+
+`ggpaver` comes with a synthetic dataset comprising several distributions: normal, left-skewed, right-skewed, bimodal, and uniform. Each distribution has the same range, and most of the plots in this article visualize the exact same data. We'll first make a base plot that we'll add to in order to construct visualizations:
+
+```{r}
+#| label: base
+base <- ggplot(
+  ggpaver::distributions,
+  aes(
+    x = x,
+    y = distribution,
+    fill = distribution
+  )
+) +
+  labs(title = "Plotting Variable \"x\" by Distribution Type")
+
+base + labs(subtitle = "(No Visualization Applied Yet)")
+```
+
+Next, we'll use `geom_pavement` to add pavement as a geometry layer to the plot. We can use the function the same way that we might use a geom function offered by `ggplot2`:
+
+```{r}
+#| label: pavement-default
+base +
+  geom_pavement(show.legend = FALSE) +
+  labs(
+    subtitle = "Each tile contains an equal share of the distribution's data"
+  )
+```
+
+In the above plot, each tile represents **25%** of the data, split by *quartile.* `geom_pavement`'s default parameter for its `bins` argument is 4 in order to encourage the user to experiment.[^1] Let's do so by including `bins = 10`:
+
+[^1]: Fun fact: A pavement plot with 4 bins visualizes the same quantiles as `geom_boxplot`. Add `+ geom_boxplot()` to the above code and see for yourself.
+
+```{r}
+#| label: pavement-10
+base +
+  geom_pavement(bins = 10, show.legend = FALSE) +
+  labs(
+    subtitle = "Each tile contains an equal share of the distribution's data"
+  )
+```
+
+Now, each tile represents **10%** of the data, split by *decile.* The above visualization illustrates the principles behind pavement plots. As Aaron Schumacher, inventor of the pavement plot, [writes](https://planspace.org/20260908-pavement_plots/), one-dimensional data visualization should meet the following criteria:
+
+> - *Simple*: Explain it in one sentence
+> - *One-dimensional*: Easily stackable for comparing many distributions
+> - *No distributional preconceptions*: Not just central/unimodal data
+> - *Minimal researcher degrees of freedom*: Shouldn't depend on choices
+> - *Handle large data sets*: Elegant support for lots of data
+
+Pavement plots divide data into equal-share intervals between quantiles, with the number of quantiles being flexible rather than fixed (and clearly displayed in the plot). When grouped, pavement plots do not overlap or connect in any way. A pavement plot presents each of its quantiles in the same manner: No quantile, such as the median, is assumed to be more important or informative than another. As pavement plots do not present counts or individual points of data, having more observations will not crowd the plot.
+
+## Other Geometries
+
+Here, we'll present some other visualization techniques available through `ggplot2` and compare them to pavement plots.
+
+### Histograms
+
+Here's what the `distributions` dataset looks like when presented with a histogram:
+
+```{r}
+#| label: histogram
+base +
+  geom_histogram(
+    aes(x = x, fill = distribution),
+    inherit.aes = FALSE,
+    bins = 50
+  ) +
+  labs(subtitle = "Histograms present count data grouped into bins")
+```
+
+The above plot has some issues:
+
+- It's not clear how the plot splits the data. If we didn't have access to the code above, counting the number of bins in the plot would be difficult.
+- The binned counts from the different distributions are connected via stacking. That makes comparisons difficult as only one group (Uniform) shows its counts starting at 0.
+- Additionally, if one distribution had substantially more observations than the others, the other distributions would become harder to view:
+
+```{r}
+x_normal <- with(distributions, x[distribution == "Normal"])
+normal_10x <- data.frame(
+  x = rep(x_normal, times = 10),
+  distribution = "Normal"
+)
+my_dist <- rbind(distributions, normal_10x)
+ggplot(my_dist, aes(x = x, fill = distribution)) +
+  geom_histogram(bins = 50) +
+  labs(title = "Distributions with Normal Being Inflated")
+```
+
+### Kernel Density Estimates (KDEs)
+
+KDEs are similar to histograms, but instead of binned counts, KDEs visualizes an estimated (and smooth) probability density function.
+
+```{r}
+#| label: kernel-density
+base +
+  geom_density(
+    aes(x = x, fill = distribution, color = distribution),
+    inherit.aes = FALSE,
+    alpha = 0.25,
+    linewidth = 0.75
+  ) +
+  labs(subtitle = "KDEs are similar to histograms, but smooth")
+```
+
+This plot doesn't have the count-related hazards of histograms, but remains flawed:
+
+- The curves aren't connected, but they do overlap, which makes the plot crowded
+- There are different methods used to estimate density—and most people are not familar with these methods in the first place
+
+### Boxplots
+
+```{r}
+#| label: boxplot
+base +
+  geom_boxplot(show.legend = FALSE) +
+  labs(subtitle = "Boxplots present data using quartiles")
+```
+
+The above plot is better, but there are still shortcomings:
+
+- The boxplot has multiple components—each requiring a different explanation as to what it represents
+- Boxplots assume unimodality when visualizing data—note that the boxplots for the uniform and bimodal distributions don't look much different from the boxplot for the normal distribution
+- If the data include many outliers, then outlying points in the plot can add clutter
+
+### Violin Plots
+
+Violin plots are highly flexible, albeit at the expense of some geometric simplicity. Unlike boxplots, they make no assumptions about the data's distribution:
+
+```{r}
+#| label: violin
+base + geom_violin(show.legend = FALSE)
+```
+
+Of the plotting functions from `ggplot2` discussed in this article, `geom_boxplot` and `geom_violin` are most similar to `geom_pavement`.[^2] We can compare these three plot types directly using the Bimodal section of the `distributions` dataset:
+
+[^2]: With a little extra effort, you can even mimic `geom_pavement`'s use of quantile lines in `geom_violin`:
+
+    ```{r}
+    #| label: violin-quantiles
+    #| code-fold: false
+    my_violin <- function(bins, ...) {
+      n_bins <- bins
+      # Adapted from `stat_pavement`:
+      quantiles <- seq(0, 1, length.out = n_bins + 1)
+      violin_quantiles <- geom_violin(quantiles = quantiles, ...)
+      return(violin_quantiles)
+    }
+    base + my_violin(bins = 10, quantile.linetype = 1)
+    ```
+
+```{r}
+library(patchwork)
+bimodal <- with(
+  distributions,
+  distributions[distribution == "Bimodal", ]
+)
+# The y-axis doesn't convey useful information for these plots:
+set_theme(
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+)
+violin <- ggplot(bimodal, aes(x = x, y = 1)) +
+  geom_violin() +
+  labs(x = NULL, y = NULL)
+box <- ggplot(bimodal, aes(x = x)) +
+  geom_boxplot() +
+  labs(x = NULL, y = NULL)
+pavement <- ggplot(bimodal, aes(x = x)) +
+  geom_pavement(bins = 16)
+# Patch together:
+patched <- violin / box / pavement
+patched +
+  plot_annotation(
+    title = "One Bimodal Distribution, Visualized Three Different Ways"
+  )
+```
+The pavement plot combines the flexibility of the violin plot with the simple geometry of the boxplot.
+
+## Further Reading
+
+- Aaron Schumacher first implemented the concept in Python—you can check out the repo on [GitHub](https://github.com/ajschumacher/pavement)
+- See `ggplot2`'s introductory [vignette](https://ggplot2.tidyverse.org/articles/ggplot2.html) for a quick guide to using the package to visualize data
+- [*R for Data Science (2e)*](https://r4ds.hadley.nz) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund provides more in-depth material on `ggplot2` as well as other packages in the `tidyverse`
+- [*Data Visualization: A Practical Introduction*](https://socviz.co) by Kieran Healy is a book-length introduction to data visualization with a focus on application in `ggplot2`
