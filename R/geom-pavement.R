@@ -8,7 +8,9 @@
 #' gives for the `bins` argument.
 #'
 #' @aesthetics GeomPavement
-#'
+#' @inheritParams ggplot2::layer
+#' @inheritParams ggplot2::geom_boxplot na.rm orientation
+#' @param ... Other arguments passed on the `ggplot2::layer`'s params argument.
 #' @export
 #' @examples
 #' ggplot2::ggplot(penguins, ggplot2::aes(body_mass, species)) + geom_pavement()
