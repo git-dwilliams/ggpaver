@@ -143,7 +143,7 @@ StatPavement <- ggplot2::ggproto(
 #'   the calculation of `bins + 1` quantiles.
 #' @param quantile.type An integer between 1 and 9 setting the quantile algorithm
 #'   per [`stats::quantile(type)`][stats::quantile]. Defaults to `2` rather than
-#'   `7`. The calculated quantiles determine the position and width of the bins.
+#'   `7`. The calculated quantiles determine the positions and widths of the bins.
 #' @export
 stat_pavement <- ggplot2::make_constructor(
   StatPavement,
