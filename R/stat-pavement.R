@@ -1,5 +1,5 @@
 # TODO: Finish documentation
-#' @rdname Stat
+#' @rdname geom_pavement
 #' @format NULL
 #' @usage NULL
 #' @export

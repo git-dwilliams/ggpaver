@@ -46,7 +46,10 @@ geom_pavement <- function(
   )
 }
 
-
+#' @rdname geom_pavement
+#' @format NULL
+#' @usage NULL
+#' @export
 GeomPavement <- ggplot2::ggproto(
   "GeomPavement",
   ggplot2::Geom,

@@ -2,6 +2,8 @@
 % Please edit documentation in R/geom-pavement.R, R/stat-pavement.R
 \name{geom_pavement}
 \alias{geom_pavement}
+\alias{GeomPavement}
+\alias{StatPavement}
 \alias{stat_pavement}
 \title{A pavement plot}
 \usage{
