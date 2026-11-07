@@ -40,7 +40,7 @@ ggplot(diamonds, aes(x = price, y = cut)) +
   )
 ```
 
-<img src="man/figures/README-example-1.png" style="width:100.0%" />
+<img src="man/figures/README-example-1.svg" style="width:100.0%" />
 
 ## Original Implementation in Python
 
